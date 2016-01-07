@@ -4,7 +4,8 @@
   "description": "A Node.js module for interacting with the PRTG API. ",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "jsdoc": "jsdoc src -r -c ./docs/jsdoc.json -d docs"
   },
   "repository": {
     "type": "git",
