@@ -13,11 +13,9 @@ A Node.js module for interacting with the PRTG API.
     var PRTG = require('node-PRTG');
     
     var api = new PRTG({
-        {
             url: 'http://your.prtg.install.com',
             username: 'username',
             passhash: '123456789'
-        }
     });
     
     api.getSensor(1234).then( /*do something with result*/ ).fail( /* handle errors */ );
