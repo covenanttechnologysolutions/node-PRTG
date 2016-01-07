@@ -2,6 +2,9 @@
  * Created by kgrube on 1/5/2016.
  */
 
+/**
+ * @private
+ */
 var Q = require('q'),
     request = require('request'),
     _ = require('lodash'),
@@ -290,6 +293,7 @@ PRTG.prototype.getDeviceStatusId = function(objid){
 
 /**
  *
+ * @private
  * @param {string} str xml string to parse
  * @param {function} cb callback(err, res)
  */
