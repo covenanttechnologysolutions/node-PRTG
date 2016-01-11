@@ -11,6 +11,26 @@ var Q = require('q'),
     xml2js = require('xml2js').parseString;
 
 /**
+ * @typedef {object} PRTGFilter
+ * @property {string} [filter_drel]         Only include records younger than this setting (for content='messages' and content='tickets' only).
+ *                                          Possible values: today, yesterday, 7days, 30days, 12months, forever
+ *
+ * @property {string[]|string} [filter_status]    Only include sensors with a specific status (for content='sensors' only). Using multiple filter_status fields performs a logical OR.
+ *                              See types PRTG.DEFAULTS.status.
+ *
+ * @property {string[]|string} [filter_tags]       Only include sensors with a specific tag (for content="sensors" only).
+ *                                          Using multiple filter_tag fields performs a logical OR.
+ *                                          Possible values: @tag(tagname)
+ *
+ * @property {string|string[]} [filter_xyz] filter_xyz where xyz is any column name used in the columns parameter;
+ *                                          Substrings: use filter_xyz=@sub(substring1,substring2);
+ *                                          Values not equal/above/below: use filter_xyz=@neq(value), filter_xyz=@above(value), filter_xyz=@below(value)
+ *
+ * @property {string} [sortby]              Sorts the data.  If this parameter is omitted, the table will be sorted based on the first column.  Add a leading '-' to reverse.
+ *                                          Possible values: any column name used in the columns parameter.  (sortby=name, sortby=lastvalue, sortby=-lastvalue)
+ */
+
+/**
  * @typedef {object} Sensor
  * @property {string} name
  * @property {string} sensortype
@@ -178,7 +198,7 @@ PRTG.prototype.getDefaults = function () {
  * @param str
  * @returns {string|number}
  */
-PRTG.prototype.getStatus = function(str){
+PRTG.prototype.getStatus = function (str) {
     return this.DEFAULTS.status[str];
 };
 
@@ -274,11 +294,11 @@ PRTG.prototype.getObjectProperty = function (objid, property) {
  * @param objid
  * @returns {*|promise|string}
  */
-PRTG.prototype.getSensorStatusId = function(objid){
+PRTG.prototype.getSensorStatusId = function (objid) {
     var deferred = Q.defer();
 
     this.getSensor(objid)
-        .then(function(res){
+        .then(function (res) {
             deferred.resolve(res.statusid);
         })
         .fail(deferred.reject);
@@ -286,9 +306,46 @@ PRTG.prototype.getSensorStatusId = function(objid){
     return deferred.promise;
 };
 
-
-PRTG.prototype.getDeviceStatusId = function(objid){
+/**
+ * @param objid
+ * @returns {*|promise|string}
+ */
+PRTG.prototype.getDeviceStatusId = function (objid) {
     return this.getSensorStatusId(objid);
+};
+
+/**
+ * @param columns
+ * @param {PRTGFilter} [filter]
+ * @param {string|number} [objid] filter set to this object (device/group/probe)
+ * @returns {promise|Sensor[]}
+ */
+PRTG.prototype.getSensors = function (columns, filter, objid) {
+    var path = '/api/table.json?content=sensors';
+
+    if (columns) {
+        if (_.isArray(columns)) {
+            columns = columns.join(',');
+        }
+    } else {
+        columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
+    }
+
+    path += '&columns=' + columns;
+
+    if (filter) {
+        path += parameterize(filter);
+    }
+
+    if (objid) {
+        path += '&id=' + objid;
+    }
+
+    return this.api(path, 'sensors');
+};
+
+PRTG.prototype.getDownOrAckSensors = function () {
+    return this.getSensors(null, { filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']] });
 };
 
 /**
@@ -305,6 +362,29 @@ function parseXML(str, cb) {
         explicitArray: false,
         trim: true
     }, cb);
+}
+
+/**
+ *
+ * @param {PRTGFilter} filter
+ * @returns {string}
+ */
+function parameterize(filter) {
+    var params = [];
+
+    for (var f in filter) {
+        if (filter.hasOwnProperty(f)) {
+            if (_.isArray(filter[f])) {
+                for (var i = 0; i < filter[f].length; i++) {
+                    params.push(f + '=' + filter[f][i]);
+                }
+            } else {
+                params.push(f + '=' + filter[f])
+            }
+        }
+    }
+
+    return '&' + params.join('&');
 }
 
 module.exports = PRTG;
