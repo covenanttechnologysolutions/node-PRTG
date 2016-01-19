@@ -223,6 +223,12 @@ PRTG.prototype.api = function (path, resultPath, parse) {
         } else if (res.statusCode != 200) {
             deferred.reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
         } else if (res.statusCode === 200) {
+            
+            //API returns improperly escaped JSON sometimes, escape it with regex
+            data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
+                .replace(/\\/g, '\\\\')
+                .replace('/\//g', '\\/');
+
             try {
                 if (!parse) {
                     deferred.resolve(_.get(JSON.parse(data), resultPath));
@@ -345,7 +351,7 @@ PRTG.prototype.getSensors = function (columns, filter, objid) {
 };
 
 PRTG.prototype.getDownOrAckSensors = function () {
-    return this.getSensors(null, { filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']] });
+    return this.getSensors(null, {filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']]});
 };
 
 /**
