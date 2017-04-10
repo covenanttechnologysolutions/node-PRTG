@@ -6,9 +6,9 @@
  * @private
  */
 var Q = require('q'),
-    request = require('request'),
-    _ = require('lodash'),
-    xml2js = require('xml2js').parseString;
+  request = require('request'),
+  _ = require('lodash'),
+  xml2js = require('xml2js').parseString;
 
 /**
  * @typedef {object} PRTGFilter
@@ -114,73 +114,73 @@ var Q = require('q'),
  * @constructor
  */
 function PRTG(options) {
-    if (!options) {
-        throw "options must be defined.";
-    }
+  if (!options) {
+    throw "options must be defined.";
+  }
 
-    if (!options.username) {
-        throw "options.username must be defined.";
-    }
+  if (!options.username) {
+    throw "options.username must be defined.";
+  }
 
-    if (!options.passhash) {
-        throw "options.passhash must be defined.";
-    }
+  if (!options.passhash) {
+    throw "options.passhash must be defined.";
+  }
 
-    if (!options.url) {
-        throw "options.url must be defined.";
-    }
+  if (!options.url) {
+    throw "options.url must be defined.";
+  }
 
-    this.auth = '&username=' + options.username + '&passhash=' + options.passhash;
-    this.url = options.url;
-
-
-    this.DEFAULTS = {};
-
-    //PRTG uses different notations for these IDs all over the place
-    this.DEFAULTS.status = {};
-    this.DEFAULTS.status['1'] = "Unknown";
-    this.DEFAULTS.status['2'] = "Scanning";
-    this.DEFAULTS.status['3'] = "Up";
-    this.DEFAULTS.status['4'] = "Warning";
-    this.DEFAULTS.status['5'] = "Down";
-    this.DEFAULTS.status['6'] = "No Probe";
-    this.DEFAULTS.status['7'] = "Paused by User";
-    this.DEFAULTS.status['8'] = "Paused by Dependency";
-    this.DEFAULTS.status['9'] = "Paused by Schedule";
-    this.DEFAULTS.status['10'] = "Unusual";
-    this.DEFAULTS.status['11'] = "Not Licensed";
-    this.DEFAULTS.status['12'] = "Paused Until";
-    this.DEFAULTS.status['13'] = "Down (Acknowledged)";
-    this.DEFAULTS.status['14'] = "Down (Partial)";
-    this.DEFAULTS.status['Unknown'] = '1';
-    this.DEFAULTS.status['Scanning'] = '2';
-    this.DEFAULTS.status['Collecting'] = '2';
-    this.DEFAULTS.status['Up'] = '3';
-    this.DEFAULTS.status['Warning'] = '4';
-    this.DEFAULTS.status['Down'] = '5';
-    this.DEFAULTS.status['No Probe'] = '6';
-    this.DEFAULTS.status['Paused by User'] = '7';
-    this.DEFAULTS.status['PausedbyUser'] = '7';
-    this.DEFAULTS.status['Paused by Dependency'] = '8';
-    this.DEFAULTS.status['PausedbyDependency'] = '8';
-    this.DEFAULTS.status['Paused by Schedule'] = '9';
-    this.DEFAULTS.status['PausedbySchedule'] = '9';
-    this.DEFAULTS.status['Unusual'] = '10';
-    this.DEFAULTS.status['Not Licensed'] = '11';
-    this.DEFAULTS.status['PausedbyLicense'] = '11';
-    this.DEFAULTS.status['Paused Until'] = '12';
-    this.DEFAULTS.status['PausedUntil'] = '12';
-    this.DEFAULTS.status['Down (Acknowledged)'] = '13';
-    this.DEFAULTS.status['DownAcknowledged'] = '13';
-    this.DEFAULTS.status['Down (Partial)'] = '14';
-    this.DEFAULTS.status['DownPartial'] = '14';
+  this.auth = '&username=' + options.username + '&passhash=' + options.passhash;
+  this.url = options.url;
 
 
-    this.DEFAULTS.httpCodes = {};
-    this.DEFAULTS.httpCodes[200] = "OK";
-    this.DEFAULTS.httpCodes[302] = "Found";
-    this.DEFAULTS.httpCodes[400] = "Bad Request";
-    this.DEFAULTS.httpCodes[401] = "Unauthorized";
+  this.DEFAULTS = {};
+
+  //PRTG uses different notations for these IDs all over the place
+  this.DEFAULTS.status = {};
+  this.DEFAULTS.status['1'] = "Unknown";
+  this.DEFAULTS.status['2'] = "Scanning";
+  this.DEFAULTS.status['3'] = "Up";
+  this.DEFAULTS.status['4'] = "Warning";
+  this.DEFAULTS.status['5'] = "Down";
+  this.DEFAULTS.status['6'] = "No Probe";
+  this.DEFAULTS.status['7'] = "Paused by User";
+  this.DEFAULTS.status['8'] = "Paused by Dependency";
+  this.DEFAULTS.status['9'] = "Paused by Schedule";
+  this.DEFAULTS.status['10'] = "Unusual";
+  this.DEFAULTS.status['11'] = "Not Licensed";
+  this.DEFAULTS.status['12'] = "Paused Until";
+  this.DEFAULTS.status['13'] = "Down (Acknowledged)";
+  this.DEFAULTS.status['14'] = "Down (Partial)";
+  this.DEFAULTS.status['Unknown'] = '1';
+  this.DEFAULTS.status['Scanning'] = '2';
+  this.DEFAULTS.status['Collecting'] = '2';
+  this.DEFAULTS.status['Up'] = '3';
+  this.DEFAULTS.status['Warning'] = '4';
+  this.DEFAULTS.status['Down'] = '5';
+  this.DEFAULTS.status['No Probe'] = '6';
+  this.DEFAULTS.status['Paused by User'] = '7';
+  this.DEFAULTS.status['PausedbyUser'] = '7';
+  this.DEFAULTS.status['Paused by Dependency'] = '8';
+  this.DEFAULTS.status['PausedbyDependency'] = '8';
+  this.DEFAULTS.status['Paused by Schedule'] = '9';
+  this.DEFAULTS.status['PausedbySchedule'] = '9';
+  this.DEFAULTS.status['Unusual'] = '10';
+  this.DEFAULTS.status['Not Licensed'] = '11';
+  this.DEFAULTS.status['PausedbyLicense'] = '11';
+  this.DEFAULTS.status['Paused Until'] = '12';
+  this.DEFAULTS.status['PausedUntil'] = '12';
+  this.DEFAULTS.status['Down (Acknowledged)'] = '13';
+  this.DEFAULTS.status['DownAcknowledged'] = '13';
+  this.DEFAULTS.status['Down (Partial)'] = '14';
+  this.DEFAULTS.status['DownPartial'] = '14';
+
+
+  this.DEFAULTS.httpCodes = {};
+  this.DEFAULTS.httpCodes[200] = "OK";
+  this.DEFAULTS.httpCodes[302] = "Found";
+  this.DEFAULTS.httpCodes[400] = "Bad Request";
+  this.DEFAULTS.httpCodes[401] = "Unauthorized";
 
 
 }
@@ -190,7 +190,7 @@ function PRTG(options) {
  * @returns {{}|*}
  */
 PRTG.prototype.getDefaults = function () {
-    return this.DEFAULTS;
+  return this.DEFAULTS;
 };
 
 /**
@@ -199,7 +199,7 @@ PRTG.prototype.getDefaults = function () {
  * @returns {string|number}
  */
 PRTG.prototype.getStatus = function (str) {
-    return this.DEFAULTS.status[str];
+  return this.DEFAULTS.status[str];
 };
 
 /**
@@ -210,44 +210,44 @@ PRTG.prototype.getStatus = function (str) {
  * @returns {promise|object}
  */
 PRTG.prototype.api = function (path, resultPath, parse) {
-    var deferred = Q.defer();
-    var self = this;
+  var deferred = Q.defer();
+  var self = this;
 
-    var options = {
-        url: this.url + path + this.auth
-    };
+  var options = {
+    url: this.url + path + this.auth,
+  };
 
-    request(options, function (err, res, data) {
-        if (err) {
-            deferred.reject(err);
-        } else if (res.statusCode != 200) {
-            deferred.reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
-        } else if (res.statusCode === 200) {
-            
-            //API returns improperly escaped JSON sometimes, escape it with regex
-            data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
-                .replace(/\\/g, '\\\\')
-                .replace('/\//g', '\\/');
+  request(options, function (err, res, data) {
+    if (err) {
+      deferred.reject(err);
+    } else if (res.statusCode != 200) {
+      deferred.reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
+    } else if (res.statusCode === 200) {
 
-            try {
-                if (!parse) {
-                    deferred.resolve(_.get(JSON.parse(data), resultPath));
-                } else {
-                    parse(data, function (err, res) {
-                        if (!err) {
-                            deferred.resolve(_.get(res, resultPath));
-                        } else {
-                            deferred.reject(err);
-                        }
-                    });
-                }
-            } catch (e) {
-                deferred.reject(e);
+      //API returns improperly escaped JSON sometimes, escape it with regex
+      data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
+        .replace(/\\/g, '\\\\')
+        .replace('/\//g', '\\/');
+
+      try {
+        if (!parse) {
+          deferred.resolve(_.get(JSON.parse(data), resultPath));
+        } else {
+          parse(data, function (err, res) {
+            if (!err) {
+              deferred.resolve(_.get(res, resultPath));
+            } else {
+              deferred.reject(err);
             }
+          });
         }
-    });
+      } catch (e) {
+        deferred.reject(e);
+      }
+    }
+  });
 
-    return deferred.promise;
+  return deferred.promise;
 };
 
 /**
@@ -256,7 +256,7 @@ PRTG.prototype.api = function (path, resultPath, parse) {
  * @returns {*|promise|Sensor}
  */
 PRTG.prototype.getSensor = function (objid) {
-    return this.api('/api/getsensordetails.json?id=' + objid, 'sensordata');
+  return this.api('/api/getsensordetails.json?id=' + objid, 'sensordata');
 };
 
 /**
@@ -266,22 +266,22 @@ PRTG.prototype.getSensor = function (objid) {
  * @returns {*|promise|Sensor[]}
  */
 PRTG.prototype.getDeviceSensors = function (objid, columns) {
-    var path = '/api/table.json?content=sensors&output=json';
+  var path = '/api/table.json?content=sensors&output=json';
 
-    if (columns) {
-        if (_.isArray(columns)) {
-            columns = columns.join(',');
-        }
-    } else {
-        columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
+  if (columns) {
+    if (_.isArray(columns)) {
+      columns = columns.join(',');
     }
-    path += '&columns=' + columns;
+  } else {
+    columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
+  }
+  path += '&columns=' + columns;
 
-    if (objid) {
-        path += '&id=' + objid;
-    }
+  if (objid) {
+    path += '&id=' + objid;
+  }
 
-    return this.api(path, 'sensors');
+  return this.api(path, 'sensors');
 };
 
 /**
@@ -291,7 +291,7 @@ PRTG.prototype.getDeviceSensors = function (objid, columns) {
  * @returns {promise|Object}
  */
 PRTG.prototype.getObjectProperty = function (objid, property) {
-    return this.api('/api/getobjectstatus.htm?id=' + objid + '&name=' + property + '&show=text', 'prtg.result', parseXML);
+  return this.api('/api/getobjectstatus.htm?id=' + objid + '&name=' + property + '&show=text', 'prtg.result', parseXML);
 };
 
 
@@ -301,15 +301,15 @@ PRTG.prototype.getObjectProperty = function (objid, property) {
  * @returns {*|promise|string}
  */
 PRTG.prototype.getSensorStatusId = function (objid) {
-    var deferred = Q.defer();
+  var deferred = Q.defer();
 
-    this.getSensor(objid)
-        .then(function (res) {
-            deferred.resolve(res.statusid);
-        })
-        .fail(deferred.reject);
+  this.getSensor(objid)
+    .then(function (res) {
+      deferred.resolve(res.statusid);
+    })
+    .fail(deferred.reject);
 
-    return deferred.promise;
+  return deferred.promise;
 };
 
 /**
@@ -317,7 +317,7 @@ PRTG.prototype.getSensorStatusId = function (objid) {
  * @returns {*|promise|string}
  */
 PRTG.prototype.getDeviceStatusId = function (objid) {
-    return this.getSensorStatusId(objid);
+  return this.getSensorStatusId(objid);
 };
 
 /**
@@ -327,31 +327,31 @@ PRTG.prototype.getDeviceStatusId = function (objid) {
  * @returns {promise|Sensor[]}
  */
 PRTG.prototype.getSensors = function (columns, filter, objid) {
-    var path = '/api/table.json?content=sensors';
+  var path = '/api/table.json?content=sensors';
 
-    if (columns) {
-        if (_.isArray(columns)) {
-            columns = columns.join(',');
-        }
-    } else {
-        columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
+  if (columns) {
+    if (_.isArray(columns)) {
+      columns = columns.join(',');
     }
+  } else {
+    columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
+  }
 
-    path += '&columns=' + columns;
+  path += '&columns=' + columns;
 
-    if (filter) {
-        path += parameterize(filter);
-    }
+  if (filter) {
+    path += parameterize(filter);
+  }
 
-    if (objid) {
-        path += '&id=' + objid;
-    }
+  if (objid) {
+    path += '&id=' + objid;
+  }
 
-    return this.api(path, 'sensors');
+  return this.api(path, 'sensors');
 };
 
 PRTG.prototype.getDownOrAckSensors = function () {
-    return this.getSensors(null, {filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']]});
+  return this.getSensors(null, {filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']]});
 };
 
 /**
@@ -361,13 +361,13 @@ PRTG.prototype.getDownOrAckSensors = function () {
  * @param {function} cb callback(err, res)
  */
 function parseXML(str, cb) {
-    xml2js(str, {
-        emptyTag: null,
-        ignoreAttrs: true,
-        mergeAttrs: true,
-        explicitArray: false,
-        trim: true
-    }, cb);
+  xml2js(str, {
+    emptyTag: null,
+    ignoreAttrs: true,
+    mergeAttrs: true,
+    explicitArray: false,
+    trim: true,
+  }, cb);
 }
 
 /**
@@ -376,21 +376,21 @@ function parseXML(str, cb) {
  * @returns {string}
  */
 function parameterize(filter) {
-    var params = [];
+  var params = [];
 
-    for (var f in filter) {
-        if (filter.hasOwnProperty(f)) {
-            if (_.isArray(filter[f])) {
-                for (var i = 0; i < filter[f].length; i++) {
-                    params.push(f + '=' + filter[f][i]);
-                }
-            } else {
-                params.push(f + '=' + filter[f])
-            }
+  for (var f in filter) {
+    if (filter.hasOwnProperty(f)) {
+      if (_.isArray(filter[f])) {
+        for (var i = 0; i < filter[f].length; i++) {
+          params.push(f + '=' + filter[f][i]);
         }
+      } else {
+        params.push(f + '=' + filter[f])
+      }
     }
+  }
 
-    return '&' + params.join('&');
+  return '&' + params.join('&');
 }
 
 module.exports = PRTG;
