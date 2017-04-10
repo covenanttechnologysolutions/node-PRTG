@@ -10,7 +10,7 @@ A Node.js module for interacting with the PRTG API.
 
 ```javascript
 
-    var PRTG = require('node-PRTG');
+    var PRTG = require('node-prtg');
     
     var api = new PRTG({
             url: 'http://your.prtg.install.com',

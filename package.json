@@ -1,5 +1,5 @@
 {
-  "name": "node-PRTG",
+  "name": "node-prtg",
   "version": "0.0.2",
   "description": "A Node.js module for interacting with the PRTG API. ",
   "main": "index.js",
