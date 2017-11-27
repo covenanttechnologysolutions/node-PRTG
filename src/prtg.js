@@ -369,8 +369,8 @@ PRTG.prototype.getSensorTree = function () {
 
   return this.api({
     path,
-    resultPath: 'prtg.sensortree[0].nodes[0].group[0]',
-    parse: xml2js,
+    resultPath: 'prtg.sensortree.nodes.group',
+    parse: parseXML,
     disableSanitize: true,
   });
 };
