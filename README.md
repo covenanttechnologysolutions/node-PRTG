@@ -21,7 +21,6 @@ A Node.js module for interacting with the PRTG API.
     api.getSensor(1234).then( /*do something with result*/ ).fail( /* handle errors */ );
     
 ```
-
 ## Classes
 
 <dl>
@@ -29,9 +28,18 @@ A Node.js module for interacting with the PRTG API.
 <dd></dd>
 </dl>
 
+## Functions
+
+<dl>
+<dt><a href="#parameterize">parameterize(filter)</a> ⇒ <code>string</code></dt>
+<dd></dd>
+</dl>
+
 ## Typedefs
 
 <dl>
+<dt><a href="#PRTGFilter">PRTGFilter</a> : <code>object</code></dt>
+<dd></dd>
 <dt><a href="#Sensor">Sensor</a> : <code>object</code></dt>
 <dd></dd>
 <dt><a href="#SensorColumns">SensorColumns</a> : <code>object</code></dt>
@@ -39,6 +47,7 @@ A Node.js module for interacting with the PRTG API.
 </dl>
 
 <a name="PRTG"></a>
+
 ## PRTG
 **Kind**: global class  
 
@@ -46,13 +55,18 @@ A Node.js module for interacting with the PRTG API.
     * [new PRTG(options)](#new_PRTG_new)
     * [.getDefaults()](#PRTG+getDefaults) ⇒ <code>Object</code> &#124; <code>\*</code>
     * [.getStatus(str)](#PRTG+getStatus) ⇒ <code>string</code> &#124; <code>number</code>
-    * [.api(path, resultPath, [parse])](#PRTG+api) ⇒ <code>promise</code> &#124; <code>object</code>
-    * [.getSensor(objid)](#PRTG+getSensor) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>[Sensor](#Sensor)</code>
-    * [.getDeviceSensors(objid, [columns])](#PRTG+getDeviceSensors) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>[Array.&lt;Sensor&gt;](#Sensor)</code>
-    * [.getObjectProperty(objid, property)](#PRTG+getObjectProperty) ⇒ <code>promise</code> &#124; <code>Object</code>
-    * [.getSensorStatusId(objid)](#PRTG+getSensorStatusId) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>string</code>
+    * [.api(path, [resultPath], [parse], [disableSanitize])](#PRTG+api) ⇒ <code>Promise</code> &#124; <code>object</code>
+    * [.getSensor(objid)](#PRTG+getSensor) ⇒ <code>[Promise.&lt;Sensor&gt;](#Sensor)</code>
+    * [.getDeviceSensors(objid, [columns])](#PRTG+getDeviceSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+    * [.getObjectProperty(objid, property)](#PRTG+getObjectProperty) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.getSensorStatusId(objid)](#PRTG+getSensorStatusId) ⇒ <code>Promise.&lt;String&gt;</code>
+    * [.getDeviceStatusId(objid)](#PRTG+getDeviceStatusId) ⇒ <code>Promise.&lt;String&gt;</code>
+    * [.getSensors([columns], [filter], [objid])](#PRTG+getSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+    * [.getDownOrAckSensors()](#PRTG+getDownOrAckSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+    * [.getSensorTree()](#PRTG+getSensorTree) ⇒ <code>Promise.&lt;Object&gt;</code>
 
 <a name="new_PRTG_new"></a>
+
 ### new PRTG(options)
 
 | Param | Description |
@@ -63,10 +77,12 @@ A Node.js module for interacting with the PRTG API.
 | options.url | Base URL of your PRTG installation, e.g. the API is accessible at <url>/API/ |
 
 <a name="PRTG+getDefaults"></a>
-### prtg.getDefaults() ⇒ <code>Object</code> &#124; <code>\*</code>
+
+### PRTG.getDefaults() ⇒ <code>Object</code> &#124; <code>\*</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 <a name="PRTG+getStatus"></a>
-### prtg.getStatus(str) ⇒ <code>string</code> &#124; <code>number</code>
+
+### PRTG.getStatus(str) ⇒ <code>string</code> &#124; <code>number</code>
 Return opposite mapping for status to status id
 
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
@@ -76,17 +92,20 @@ Return opposite mapping for status to status id
 | str | 
 
 <a name="PRTG+api"></a>
-### prtg.api(path, resultPath, [parse]) ⇒ <code>promise</code> &#124; <code>object</code>
+
+### PRTG.api(path, [resultPath], [parse], [disableSanitize]) ⇒ <code>Promise</code> &#124; <code>object</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | path | <code>string</code> |  |
-| resultPath | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> | See https://lodash.com/docs#get |
+| [resultPath] | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> | See https://lodash.com/docs#get |
 | [parse] | <code>function</code> | parse function that uses signature of fn(string, callback) with callback of fn(err, result) |
+| [disableSanitize] | <code>boolean</code> |  |
 
 <a name="PRTG+getSensor"></a>
-### prtg.getSensor(objid) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>[Sensor](#Sensor)</code>
+
+### PRTG.getSensor(objid) ⇒ <code>[Promise.&lt;Sensor&gt;](#Sensor)</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Description |
@@ -94,7 +113,8 @@ Return opposite mapping for status to status id
 | objid | sensor's ID |
 
 <a name="PRTG+getDeviceSensors"></a>
-### prtg.getDeviceSensors(objid, [columns]) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>[Array.&lt;Sensor&gt;](#Sensor)</code>
+
+### PRTG.getDeviceSensors(objid, [columns]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Type | Description |
@@ -103,7 +123,8 @@ Return opposite mapping for status to status id
 | [columns] | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> | Defaults to 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message' |
 
 <a name="PRTG+getObjectProperty"></a>
-### prtg.getObjectProperty(objid, property) ⇒ <code>promise</code> &#124; <code>Object</code>
+
+### PRTG.getObjectProperty(objid, property) ⇒ <code>Promise.&lt;Object&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param |
@@ -112,14 +133,67 @@ Return opposite mapping for status to status id
 | property | 
 
 <a name="PRTG+getSensorStatusId"></a>
-### prtg.getSensorStatusId(objid) ⇒ <code>\*</code> &#124; <code>promise</code> &#124; <code>string</code>
+
+### PRTG.getSensorStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param |
 | --- |
 | objid | 
 
+<a name="PRTG+getDeviceStatusId"></a>
+
+### PRTG.getDeviceStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param |
+| --- |
+| objid | 
+
+<a name="PRTG+getSensors"></a>
+
+### PRTG.getSensors([columns], [filter], [objid]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param | Type | Description |
+| --- | --- | --- |
+| [columns] |  |  |
+| [filter] | <code>[PRTGFilter](#PRTGFilter)</code> |  |
+| [objid] | <code>string</code> &#124; <code>number</code> | filter set to this object (device/group/probe) |
+
+<a name="PRTG+getDownOrAckSensors"></a>
+
+### PRTG.getDownOrAckSensors() ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+<a name="PRTG+getSensorTree"></a>
+
+### PRTG.getSensorTree() ⇒ <code>Promise.&lt;Object&gt;</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+<a name="parameterize"></a>
+
+## parameterize(filter) ⇒ <code>string</code>
+**Kind**: global function  
+
+| Param | Type |
+| --- | --- |
+| filter | <code>[PRTGFilter](#PRTGFilter)</code> | 
+
+<a name="PRTGFilter"></a>
+
+## PRTGFilter : <code>object</code>
+**Kind**: global typedef  
+**Properties**
+
+| Name | Type | Description |
+| --- | --- | --- |
+| filter_drel | <code>string</code> | Only include records younger than this setting (for content='messages' and content='tickets' only).                                          Possible values: today, yesterday, 7days, 30days, 12months, forever |
+| filter_status | <code>Array.&lt;string&gt;</code> &#124; <code>string</code> | Only include sensors with a specific status (for content='sensors' only). Using multiple filter_status fields performs a logical OR.                              See types PRTG.DEFAULTS.status. |
+| filter_tags | <code>Array.&lt;string&gt;</code> &#124; <code>string</code> | Only include sensors with a specific tag (for content="sensors" only).                                          Using multiple filter_tag fields performs a logical OR.                                          Possible values: @tag(tagname) |
+| filter_xyz | <code>string</code> &#124; <code>Array.&lt;string&gt;</code> | filter_xyz where xyz is any column name used in the columns parameter;                                          Substrings: use filter_xyz=@sub(substring1,substring2);                                          Values not equal/above/below: use filter_xyz=@neq(value), filter_xyz=@above(value), filter_xyz=@below(value) |
+| sortby | <code>string</code> | Sorts the data.  If this parameter is omitted, the table will be sorted based on the first column.  Add a leading '-' to reverse.                                          Possible values: any column name used in the columns parameter.  (sortby=name, sortby=lastvalue, sortby=-lastvalue) |
+
 <a name="Sensor"></a>
+
 ## Sensor : <code>object</code>
 **Kind**: global typedef  
 **Properties**
@@ -149,6 +223,7 @@ Return opposite mapping for status to status id
 | updownsince | <code>string</code> | 
 
 <a name="SensorColumns"></a>
+
 ## SensorColumns : <code>object</code>
 **Kind**: global typedef  
 **Properties**
