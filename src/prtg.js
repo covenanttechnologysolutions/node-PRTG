@@ -5,10 +5,9 @@
 /**
  * @private
  */
-var Q = require('q'),
-  request = require('request'),
-  _ = require('lodash'),
-  xml2js = require('xml2js').parseString;
+const request = require('request');
+const _ = require('lodash');
+const xml2js = require('xml2js').parseString;
 
 /**
  * @typedef {object} PRTGFilter
@@ -115,43 +114,42 @@ var Q = require('q'),
  */
 function PRTG(options) {
   if (!options) {
-    throw "options must be defined.";
+    throw 'options must be defined.';
   }
 
   if (!options.username) {
-    throw "options.username must be defined.";
+    throw 'options.username must be defined.';
   }
 
   if (!options.passhash) {
-    throw "options.passhash must be defined.";
+    throw 'options.passhash must be defined.';
   }
 
   if (!options.url) {
-    throw "options.url must be defined.";
+    throw 'options.url must be defined.';
   }
 
   this.auth = '&username=' + options.username + '&passhash=' + options.passhash;
   this.url = options.url;
 
-
   this.DEFAULTS = {};
 
   //PRTG uses different notations for these IDs all over the place
   this.DEFAULTS.status = {};
-  this.DEFAULTS.status['1'] = "Unknown";
-  this.DEFAULTS.status['2'] = "Scanning";
-  this.DEFAULTS.status['3'] = "Up";
-  this.DEFAULTS.status['4'] = "Warning";
-  this.DEFAULTS.status['5'] = "Down";
-  this.DEFAULTS.status['6'] = "No Probe";
-  this.DEFAULTS.status['7'] = "Paused by User";
-  this.DEFAULTS.status['8'] = "Paused by Dependency";
-  this.DEFAULTS.status['9'] = "Paused by Schedule";
-  this.DEFAULTS.status['10'] = "Unusual";
-  this.DEFAULTS.status['11'] = "Not Licensed";
-  this.DEFAULTS.status['12'] = "Paused Until";
-  this.DEFAULTS.status['13'] = "Down (Acknowledged)";
-  this.DEFAULTS.status['14'] = "Down (Partial)";
+  this.DEFAULTS.status['1'] = 'Unknown';
+  this.DEFAULTS.status['2'] = 'Scanning';
+  this.DEFAULTS.status['3'] = 'Up';
+  this.DEFAULTS.status['4'] = 'Warning';
+  this.DEFAULTS.status['5'] = 'Down';
+  this.DEFAULTS.status['6'] = 'No Probe';
+  this.DEFAULTS.status['7'] = 'Paused by User';
+  this.DEFAULTS.status['8'] = 'Paused by Dependency';
+  this.DEFAULTS.status['9'] = 'Paused by Schedule';
+  this.DEFAULTS.status['10'] = 'Unusual';
+  this.DEFAULTS.status['11'] = 'Not Licensed';
+  this.DEFAULTS.status['12'] = 'Paused Until';
+  this.DEFAULTS.status['13'] = 'Down (Acknowledged)';
+  this.DEFAULTS.status['14'] = 'Down (Partial)';
   this.DEFAULTS.status['Unknown'] = '1';
   this.DEFAULTS.status['Scanning'] = '2';
   this.DEFAULTS.status['Collecting'] = '2';
@@ -175,13 +173,11 @@ function PRTG(options) {
   this.DEFAULTS.status['Down (Partial)'] = '14';
   this.DEFAULTS.status['DownPartial'] = '14';
 
-
   this.DEFAULTS.httpCodes = {};
-  this.DEFAULTS.httpCodes[200] = "OK";
-  this.DEFAULTS.httpCodes[302] = "Found";
-  this.DEFAULTS.httpCodes[400] = "Bad Request";
-  this.DEFAULTS.httpCodes[401] = "Unauthorized";
-
+  this.DEFAULTS.httpCodes[200] = 'OK';
+  this.DEFAULTS.httpCodes[302] = 'Found';
+  this.DEFAULTS.httpCodes[400] = 'Bad Request';
+  this.DEFAULTS.httpCodes[401] = 'Unauthorized';
 
 }
 
@@ -205,65 +201,72 @@ PRTG.prototype.getStatus = function (str) {
 /**
  *
  * @param {string} path
- * @param {string|string[]} resultPath See https://lodash.com/docs#get
+ * @param {string|string[]} [resultPath] See https://lodash.com/docs#get
  * @param {function} [parse] parse function that uses signature of fn(string, callback) with callback of fn(err, result)
- * @returns {promise|object}
+ * @param {boolean} [disableSanitize]
+ * @returns {Promise|object}
  */
-PRTG.prototype.api = function (path, resultPath, parse) {
-  var deferred = Q.defer();
+PRTG.prototype.api = function ({path, resultPath = null, parse = null, disableSanitize = false}) {
   var self = this;
 
   var options = {
     url: this.url + path + this.auth,
   };
 
-  request(options, function (err, res, data) {
-    if (err) {
-      deferred.reject(err);
-    } else if (res.statusCode != 200) {
-      deferred.reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
-    } else if (res.statusCode === 200) {
+  return new Promise((resolve, reject) => {
+    return request(options, function (err, res, data) {
+      if (err) {
+        return reject(err);
+      } else if (res.statusCode !== 200) {
+        return reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
+      } else if (res.statusCode === 200) {
 
-      //API returns improperly escaped JSON sometimes, escape it with regex
-      data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
-        .replace(/\\/g, '\\\\')
-        .replace('/\//g', '\\/');
-
-      try {
-        if (!parse) {
-          deferred.resolve(_.get(JSON.parse(data), resultPath));
-        } else {
-          parse(data, function (err, res) {
-            if (!err) {
-              deferred.resolve(_.get(res, resultPath));
-            } else {
-              deferred.reject(err);
-            }
-          });
+        if (!disableSanitize) {
+          //API returns improperly escaped JSON sometimes, escape it with regex
+          data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
+            .replace(/\\/g, '\\\\')
+            .replace('/\//g', '\\/');
         }
-      } catch (e) {
-        deferred.reject(e);
-      }
-    }
-  });
 
-  return deferred.promise;
+        try {
+          if (!parse && resultPath) {
+            return resolve(_.get(JSON.parse(data), resultPath));
+          } else if (!parse) {
+            return resolve(JSON.parse(data));
+          } else {
+            return parse(data, function (err, res) {
+              if (!err) {
+                if (resultPath) {
+                  return resolve(_.get(res, resultPath));
+                }
+                return resolve(res);
+              } else {
+                return reject(err);
+              }
+            });
+          }
+        } catch (e) {
+          return reject(e);
+        }
+      }
+    });
+  });
 };
 
 /**
  *
  * @param objid sensor's ID
- * @returns {*|promise|Sensor}
+ * @returns {Promise<Sensor>}
  */
 PRTG.prototype.getSensor = function (objid) {
-  return this.api('/api/getsensordetails.json?id=' + objid, 'sensordata');
+  return this.api({path: '/api/getsensordetails.json?id=' + objid, resultPath: 'sensordata'});
 };
 
 /**
  *
  * @param objid
  * @param {string|string[]} [columns] Defaults to 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message'
- * @returns {*|promise|Sensor[]}
+ * @returns {Promise<Sensor[]>}
  */
 PRTG.prototype.getDeviceSensors = function (objid, columns) {
   var path = '/api/table.json?content=sensors&output=json';
@@ -281,50 +284,49 @@ PRTG.prototype.getDeviceSensors = function (objid, columns) {
     path += '&id=' + objid;
   }
 
-  return this.api(path, 'sensors');
+  return this.api({
+    path,
+    resultPath: 'sensors',
+  });
 };
 
 /**
  *
  * @param objid
  * @param property
- * @returns {promise|Object}
+ * @returns {Promise<Object>}
  */
 PRTG.prototype.getObjectProperty = function (objid, property) {
-  return this.api('/api/getobjectstatus.htm?id=' + objid + '&name=' + property + '&show=text', 'prtg.result', parseXML);
+  return this.api({
+    path: '/api/getobjectstatus.htm?id=' + objid + '&name=' + property + '&show=text',
+    resultPath: 'prtg.result',
+    parse: parseXML,
+  });
 };
-
 
 /**
  *
  * @param objid
- * @returns {*|promise|string}
+ * @returns {Promise<String>}
  */
 PRTG.prototype.getSensorStatusId = function (objid) {
-  var deferred = Q.defer();
-
-  this.getSensor(objid)
-    .then(function (res) {
-      deferred.resolve(res.statusid);
-    })
-    .fail(deferred.reject);
-
-  return deferred.promise;
+  return this.getSensor(objid)
+    .then((res) => res.statusid);
 };
 
 /**
  * @param objid
- * @returns {*|promise|string}
+ * @returns {Promise<String>}
  */
 PRTG.prototype.getDeviceStatusId = function (objid) {
   return this.getSensorStatusId(objid);
 };
 
 /**
- * @param columns
+ * @param [columns]
  * @param {PRTGFilter} [filter]
  * @param {string|number} [objid] filter set to this object (device/group/probe)
- * @returns {promise|Sensor[]}
+ * @returns {Promise<Sensor[]>}
  */
 PRTG.prototype.getSensors = function (columns, filter, objid) {
   var path = '/api/table.json?content=sensors';
@@ -347,11 +349,30 @@ PRTG.prototype.getSensors = function (columns, filter, objid) {
     path += '&id=' + objid;
   }
 
-  return this.api(path, 'sensors');
+  return this.api({path, resultPath: 'sensors'});
 };
 
+/**
+ *
+ * @returns {Promise<Sensor[]>}
+ */
 PRTG.prototype.getDownOrAckSensors = function () {
   return this.getSensors(null, {filter_status: [this.DEFAULTS.status['Down'], this.DEFAULTS.status['DownAcknowledged']]});
+};
+
+/**
+ *
+ * @returns {Promise<Object>}
+ */
+PRTG.prototype.getSensorTree = function () {
+  const path = '/api/table.xml?content=sensortree&output=xml&count=50000';
+
+  return this.api({
+    path,
+    resultPath: 'prtg.sensortree[0].nodes[0].group[0]',
+    parse: xml2js,
+    disableSanitize: true,
+  });
 };
 
 /**
@@ -385,7 +406,7 @@ function parameterize(filter) {
           params.push(f + '=' + filter[f][i]);
         }
       } else {
-        params.push(f + '=' + filter[f])
+        params.push(f + '=' + filter[f]);
       }
     }
   }
