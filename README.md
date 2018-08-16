@@ -64,6 +64,10 @@ A Node.js module for interacting with the PRTG API.
     * [.getSensors([columns], [filter], [objid])](#PRTG+getSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
     * [.getDownOrAckSensors()](#PRTG+getDownOrAckSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
     * [.getSensorTree()](#PRTG+getSensorTree) ⇒ <code>Promise.&lt;Object&gt;</code>
+    * [.pauseSensor(objectId, message)](#PRTG+pauseSensor) ⇒ <code>Promise</code> &#124; <code>Object</code>
+    * [.pauseSensorDuration(objectId, message, minutes)](#PRTG+pauseSensorDuration) ⇒ <code>Promise</code> &#124; <code>Object</code>
+    * [.acknowledgeSensor(objectId, message)](#PRTG+acknowledgeSensor) ⇒ <code>Promise</code> &#124; <code>Object</code>
+    * [.acknowledgeSensorDuration(objectId, message, minutes)](#PRTG+acknowledgeSensorDuration) ⇒ <code>Promise</code> &#124; <code>Object</code>
 
 <a name="new_PRTG_new"></a>
 
@@ -78,11 +82,11 @@ A Node.js module for interacting with the PRTG API.
 
 <a name="PRTG+getDefaults"></a>
 
-### PRTG.getDefaults() ⇒ <code>Object</code> &#124; <code>\*</code>
+### prtG.getDefaults() ⇒ <code>Object</code> &#124; <code>\*</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 <a name="PRTG+getStatus"></a>
 
-### PRTG.getStatus(str) ⇒ <code>string</code> &#124; <code>number</code>
+### prtG.getStatus(str) ⇒ <code>string</code> &#124; <code>number</code>
 Return opposite mapping for status to status id
 
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
@@ -93,7 +97,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+api"></a>
 
-### PRTG.api(path, [resultPath], [parse], [disableSanitize]) ⇒ <code>Promise</code> &#124; <code>object</code>
+### prtG.api(path, [resultPath], [parse], [disableSanitize]) ⇒ <code>Promise</code> &#124; <code>object</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Type | Description |
@@ -105,7 +109,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getSensor"></a>
 
-### PRTG.getSensor(objid) ⇒ <code>[Promise.&lt;Sensor&gt;](#Sensor)</code>
+### prtG.getSensor(objid) ⇒ <code>[Promise.&lt;Sensor&gt;](#Sensor)</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Description |
@@ -114,7 +118,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getDeviceSensors"></a>
 
-### PRTG.getDeviceSensors(objid, [columns]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+### prtG.getDeviceSensors(objid, [columns]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Type | Description |
@@ -124,7 +128,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getObjectProperty"></a>
 
-### PRTG.getObjectProperty(objid, property) ⇒ <code>Promise.&lt;Object&gt;</code>
+### prtG.getObjectProperty(objid, property) ⇒ <code>Promise.&lt;Object&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param |
@@ -134,7 +138,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getSensorStatusId"></a>
 
-### PRTG.getSensorStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
+### prtG.getSensorStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param |
@@ -143,7 +147,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getDeviceStatusId"></a>
 
-### PRTG.getDeviceStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
+### prtG.getDeviceStatusId(objid) ⇒ <code>Promise.&lt;String&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param |
@@ -152,7 +156,7 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getSensors"></a>
 
-### PRTG.getSensors([columns], [filter], [objid]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+### prtG.getSensors([columns], [filter], [objid]) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 
 | Param | Type | Description |
@@ -163,12 +167,54 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+getDownOrAckSensors"></a>
 
-### PRTG.getDownOrAckSensors() ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
+### prtG.getDownOrAckSensors() ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
 <a name="PRTG+getSensorTree"></a>
 
-### PRTG.getSensorTree() ⇒ <code>Promise.&lt;Object&gt;</code>
+### prtG.getSensorTree() ⇒ <code>Promise.&lt;Object&gt;</code>
 **Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+<a name="PRTG+pauseSensor"></a>
+
+### prtG.pauseSensor(objectId, message) ⇒ <code>Promise</code> &#124; <code>Object</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param |
+| --- |
+| objectId | 
+| message | 
+
+<a name="PRTG+pauseSensorDuration"></a>
+
+### prtG.pauseSensorDuration(objectId, message, minutes) ⇒ <code>Promise</code> &#124; <code>Object</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param |
+| --- |
+| objectId | 
+| message | 
+| minutes | 
+
+<a name="PRTG+acknowledgeSensor"></a>
+
+### prtG.acknowledgeSensor(objectId, message) ⇒ <code>Promise</code> &#124; <code>Object</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param |
+| --- |
+| objectId | 
+| message | 
+
+<a name="PRTG+acknowledgeSensorDuration"></a>
+
+### prtG.acknowledgeSensorDuration(objectId, message, minutes) ⇒ <code>Promise</code> &#124; <code>Object</code>
+**Kind**: instance method of <code>[PRTG](#PRTG)</code>  
+
+| Param |
+| --- |
+| objectId | 
+| message | 
+| minutes | 
+
 <a name="parameterize"></a>
 
 ## parameterize(filter) ⇒ <code>string</code>
@@ -275,4 +321,3 @@ Return opposite mapping for status to status id
 | basetype |  | ?? |
 | baselink |  | ?? |
 | parentid |  | ?? |
-
