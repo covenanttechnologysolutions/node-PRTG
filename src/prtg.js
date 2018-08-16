@@ -375,6 +375,83 @@ PRTG.prototype.getSensorTree = function () {
   });
 };
 
+PRTG.prototype.simulateSensorError = function (objectId) {
+  const path = `/api/simulate.htm?id=${objectId}&action=1`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+/**
+ * @param objectId
+ * @param message
+ * @returns {Promise|Object}
+ */
+PRTG.prototype.pauseSensor = function (objectId, message) {
+  const path = `/api/pause.htm?id=${objectId}&pausemsg=${message}&action=0`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+PRTG.prototype.resumeSensor = function (objectId) {
+  const path = `/api/pause.htm?id=${objectId}&action=1`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+/**
+ * @param objectId
+ * @param message
+ * @param minutes
+ * @returns {Promise|Object}
+ */
+PRTG.prototype.pauseSensorDuration = function (objectId, message, minutes) {
+  const path = `/api/pauseobjectfor.htm?id=${objectId}&pausemsg=${message}&duration=${minutes}`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+/**
+ * @param objectId
+ * @param message
+ * @returns {Promise|Object}
+ */
+PRTG.prototype.acknowledgeSensor = function (objectId, message) {
+  const path = `/api/acknowledgealarm.htm?id=${objectId}&ackmsg=${message}`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+/**
+ * @param objectId
+ * @param message
+ * @param minutes
+ * @returns {Promise|Object}
+ */
+PRTG.prototype.acknowledgeSensorDuration = function (objectId, message, minutes) {
+  const path = `/api/acknowledgealarm.htm?id=${objectId}&ackmsg=${message}&duration=${minutes}`;
+
+  return this.api({
+    path,
+    parse: (_, cb) => cb(null, {}),
+  });
+};
+
+
 /**
  *
  * @private
