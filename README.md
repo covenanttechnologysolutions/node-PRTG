@@ -28,13 +28,6 @@ A Node.js module for interacting with the PRTG API.
 <dd></dd>
 </dl>
 
-## Functions
-
-<dl>
-<dt><a href="#parameterize">parameterize(filter)</a> ⇒ <code>string</code></dt>
-<dd></dd>
-</dl>
-
 ## Typedefs
 
 <dl>
@@ -55,7 +48,7 @@ A Node.js module for interacting with the PRTG API.
     * [new PRTG(options)](#new_PRTG_new)
     * [.getDefaults()](#PRTG+getDefaults) ⇒ <code>Object</code> \| <code>\*</code>
     * [.getStatus(str)](#PRTG+getStatus) ⇒ <code>string</code> \| <code>number</code>
-    * [.api(path, [resultPath], [parse], [disableSanitize])](#PRTG+api) ⇒ <code>Promise</code> \| <code>object</code>
+    * [.api(path, query, [resultPath], [parse], [enableSanitize])](#PRTG+api) ⇒ <code>Promise</code> \| <code>object</code>
     * [.getSensor(objid)](#PRTG+getSensor) ⇒ [<code>Promise.&lt;Sensor&gt;</code>](#Sensor)
     * [.getDeviceSensors(objid, [columns])](#PRTG+getDeviceSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
     * [.getObjectProperty(objid, property)](#PRTG+getObjectProperty) ⇒ <code>Promise.&lt;Object&gt;</code>
@@ -65,6 +58,7 @@ A Node.js module for interacting with the PRTG API.
     * [.getDownOrAckSensors()](#PRTG+getDownOrAckSensors) ⇒ <code>Promise.&lt;Array.&lt;Sensor&gt;&gt;</code>
     * [.getSensorTree()](#PRTG+getSensorTree) ⇒ <code>Promise.&lt;Object&gt;</code>
     * [.pauseSensor(objectId, message)](#PRTG+pauseSensor) ⇒ <code>Promise</code> \| <code>Object</code>
+    * [.resumeSensor(objectId)](#PRTG+resumeSensor) ⇒ <code>Promise</code> \| <code>Object</code>
     * [.pauseSensorDuration(objectId, message, minutes)](#PRTG+pauseSensorDuration) ⇒ <code>Promise</code> \| <code>Object</code>
     * [.acknowledgeSensor(objectId, message)](#PRTG+acknowledgeSensor) ⇒ <code>Promise</code> \| <code>Object</code>
     * [.acknowledgeSensorDuration(objectId, message, minutes)](#PRTG+acknowledgeSensorDuration) ⇒ <code>Promise</code> \| <code>Object</code>
@@ -97,15 +91,16 @@ Return opposite mapping for status to status id
 
 <a name="PRTG+api"></a>
 
-### prtG.api(path, [resultPath], [parse], [disableSanitize]) ⇒ <code>Promise</code> \| <code>object</code>
+### prtG.api(path, query, [resultPath], [parse], [enableSanitize]) ⇒ <code>Promise</code> \| <code>object</code>
 **Kind**: instance method of [<code>PRTG</code>](#PRTG)  
 
 | Param | Type | Description |
 | --- | --- | --- |
 | path | <code>string</code> |  |
+| query | <code>object</code> |  |
 | [resultPath] | <code>string</code> \| <code>Array.&lt;string&gt;</code> | See https://lodash.com/docs#get |
 | [parse] | <code>function</code> | parse function that uses signature of fn(string, callback) with callback of fn(err, result) |
-| [disableSanitize] | <code>boolean</code> |  |
+| [enableSanitize] | <code>boolean</code> | enable regex to replace invalid characters |
 
 <a name="PRTG+getSensor"></a>
 
@@ -183,6 +178,15 @@ Return opposite mapping for status to status id
 | objectId | 
 | message | 
 
+<a name="PRTG+resumeSensor"></a>
+
+### prtG.resumeSensor(objectId) ⇒ <code>Promise</code> \| <code>Object</code>
+**Kind**: instance method of [<code>PRTG</code>](#PRTG)  
+
+| Param |
+| --- |
+| objectId | 
+
 <a name="PRTG+pauseSensorDuration"></a>
 
 ### prtG.pauseSensorDuration(objectId, message, minutes) ⇒ <code>Promise</code> \| <code>Object</code>
@@ -214,15 +218,6 @@ Return opposite mapping for status to status id
 | objectId | 
 | message | 
 | minutes | 
-
-<a name="parameterize"></a>
-
-## parameterize(filter) ⇒ <code>string</code>
-**Kind**: global function  
-
-| Param | Type |
-| --- | --- |
-| filter | [<code>PRTGFilter</code>](#PRTGFilter) | 
 
 <a name="PRTGFilter"></a>
 
@@ -321,3 +316,4 @@ Return opposite mapping for status to status id
 | basetype |  | ?? |
 | baselink |  | ?? |
 | parentid |  | ?? |
+
