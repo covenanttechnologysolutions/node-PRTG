@@ -114,22 +114,22 @@ const xml2js = require('xml2js').parseString;
  */
 function PRTG(options) {
   if (!options) {
-    throw 'options must be defined.';
+    throw 'options must be defined';
   }
 
   if (!options.username) {
-    throw 'options.username must be defined.';
+    throw 'options.username must be defined';
   }
 
   if (!options.passhash) {
-    throw 'options.passhash must be defined.';
+    throw 'options.passhash must be defined';
   }
 
   if (!options.url) {
-    throw 'options.url must be defined.';
+    throw 'options.url must be defined';
   }
 
-  this.auth = '&username=' + options.username + '&passhash=' + options.passhash;
+  this.auth = {username: options.username, passhash: options.passhash};
   this.url = options.url;
 
   this.DEFAULTS = {};
@@ -201,16 +201,17 @@ PRTG.prototype.getStatus = function (str) {
 /**
  *
  * @param {string} path
+ * @param {object} query
  * @param {string|string[]} [resultPath] See https://lodash.com/docs#get
  * @param {function} [parse] parse function that uses signature of fn(string, callback) with callback of fn(err, result)
- * @param {boolean} [disableSanitize]
+ * @param {boolean} [enableSanitize] enable regex to replace invalid characters
  * @returns {Promise|object}
  */
-PRTG.prototype.api = function ({path, resultPath = null, parse = null, disableSanitize = false}) {
+PRTG.prototype.api = function ({path, query = {}, resultPath = null, parse = null, enableSanitize = false}) {
   var self = this;
 
   var options = {
-    url: this.url + path + this.auth,
+    url: this.url + path + parameterizeURL(Object.assign(query, this.auth)),
   };
 
   return new Promise((resolve, reject) => {
@@ -221,7 +222,18 @@ PRTG.prototype.api = function ({path, resultPath = null, parse = null, disableSa
         return reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
       } else if (res.statusCode === 200) {
 
-        if (!disableSanitize) {
+        var failParse = false;
+
+        // try to parse without sanitizing, fallback to sanitizing JSON expected data
+        try {
+          if (!parse) {
+            JSON.parse(data);
+          }
+        } catch (e) {
+          failParse = true;
+        }
+
+        if (enableSanitize || failParse) {
           //API returns improperly escaped JSON sometimes, escape it with regex
           data = data.replace(/\s(?=([^"]*"[^"]*")*[^"]*$)/g, '')
             .replace(/\\/g, '\\\\')
@@ -259,7 +271,7 @@ PRTG.prototype.api = function ({path, resultPath = null, parse = null, disableSa
  * @returns {Promise<Sensor>}
  */
 PRTG.prototype.getSensor = function (objid) {
-  return this.api({path: '/api/getsensordetails.json?id=' + objid, resultPath: 'sensordata'});
+  return this.api({path: '/api/getsensordetails.json', query: {id: objid}, resultPath: 'sensordata'});
 };
 
 /**
@@ -269,7 +281,8 @@ PRTG.prototype.getSensor = function (objid) {
  * @returns {Promise<Sensor[]>}
  */
 PRTG.prototype.getDeviceSensors = function (objid, columns) {
-  var path = '/api/table.json?content=sensors&output=json';
+  var path = '/api/table.json';
+  var query = {content: 'sensors', output: 'json'};
 
   if (columns) {
     if (_.isArray(columns)) {
@@ -278,16 +291,13 @@ PRTG.prototype.getDeviceSensors = function (objid, columns) {
   } else {
     columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
   }
-  path += '&columns=' + columns;
+  query.columns = columns;
 
   if (objid) {
-    path += '&id=' + objid;
+    query.id = objid;
   }
 
-  return this.api({
-    path,
-    resultPath: 'sensors',
-  });
+  return this.api({path, query, resultPath: 'sensors'});
 };
 
 /**
@@ -298,7 +308,12 @@ PRTG.prototype.getDeviceSensors = function (objid, columns) {
  */
 PRTG.prototype.getObjectProperty = function (objid, property) {
   return this.api({
-    path: '/api/getobjectstatus.htm?id=' + objid + '&name=' + property + '&show=text',
+    path: '/api/getobjectstatus.htm',
+    query: {
+      id: objid,
+      name: property,
+      show: 'text',
+    },
     resultPath: 'prtg.result',
     parse: parseXML,
   });
@@ -329,7 +344,8 @@ PRTG.prototype.getDeviceStatusId = function (objid) {
  * @returns {Promise<Sensor[]>}
  */
 PRTG.prototype.getSensors = function (columns, filter, objid) {
-  var path = '/api/table.json?content=sensors';
+  var path = '/api/table.json';
+  var query = {content: 'sensors'};
 
   if (columns) {
     if (_.isArray(columns)) {
@@ -339,17 +355,17 @@ PRTG.prototype.getSensors = function (columns, filter, objid) {
     columns = 'objid,probe,group,device,sensor,lastvalue,type,name,tags,active,status,grpdev,message';
   }
 
-  path += '&columns=' + columns;
+  query.columns = columns;
 
   if (filter) {
-    path += parameterize(filter);
+    query = Object.assign(query, filter);
   }
 
   if (objid) {
-    path += '&id=' + objid;
+    query.id = objid;
   }
 
-  return this.api({path, resultPath: 'sensors'});
+  return this.api({path, query, resultPath: 'sensors'});
 };
 
 /**
@@ -365,21 +381,23 @@ PRTG.prototype.getDownOrAckSensors = function () {
  * @returns {Promise<Object>}
  */
 PRTG.prototype.getSensorTree = function () {
-  const path = '/api/table.xml?content=sensortree&output=xml&count=50000';
+  const path = '/api/table.xml';
+  const query = {content: 'sensortree', output: 'xml', count: 50000};
 
   return this.api({
     path,
+    query,
     resultPath: 'prtg.sensortree.nodes.group',
     parse: parseXML,
-    disableSanitize: true,
   });
 };
 
 PRTG.prototype.simulateSensorError = function (objectId) {
-  const path = `/api/simulate.htm?id=${objectId}&action=1`;
+  const path = `/api/simulate.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, action: 1},
     parse: (_, cb) => cb(null, {}),
   });
 };
@@ -389,20 +407,26 @@ PRTG.prototype.simulateSensorError = function (objectId) {
  * @param message
  * @returns {Promise|Object}
  */
-PRTG.prototype.pauseSensor = function (objectId, message) {
-  const path = `/api/pause.htm?id=${objectId}&pausemsg=${message}&action=0`;
+PRTG.prototype.pauseSensor = function (objectId, message = '') {
+  const path = `/api/pause.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, pausemsg: message, action: 0},
     parse: (_, cb) => cb(null, {}),
   });
 };
 
+/**
+ * @param objectId
+ * @returns {Promise|Object}
+ */
 PRTG.prototype.resumeSensor = function (objectId) {
-  const path = `/api/pause.htm?id=${objectId}&action=1`;
+  const path = `/api/pause.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, action: 1},
     parse: (_, cb) => cb(null, {}),
   });
 };
@@ -414,10 +438,11 @@ PRTG.prototype.resumeSensor = function (objectId) {
  * @returns {Promise|Object}
  */
 PRTG.prototype.pauseSensorDuration = function (objectId, message, minutes) {
-  const path = `/api/pauseobjectfor.htm?id=${objectId}&pausemsg=${message}&duration=${minutes}`;
+  const path = `/api/pauseobjectfor.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, pausemsg: message, duration: minutes},
     parse: (_, cb) => cb(null, {}),
   });
 };
@@ -428,10 +453,11 @@ PRTG.prototype.pauseSensorDuration = function (objectId, message, minutes) {
  * @returns {Promise|Object}
  */
 PRTG.prototype.acknowledgeSensor = function (objectId, message) {
-  const path = `/api/acknowledgealarm.htm?id=${objectId}&ackmsg=${message}`;
+  const path = `/api/acknowledgealarm.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, ackmsg: message},
     parse: (_, cb) => cb(null, {}),
   });
 };
@@ -443,10 +469,11 @@ PRTG.prototype.acknowledgeSensor = function (objectId, message) {
  * @returns {Promise|Object}
  */
 PRTG.prototype.acknowledgeSensorDuration = function (objectId, message, minutes) {
-  const path = `/api/acknowledgealarm.htm?id=${objectId}&ackmsg=${message}&duration=${minutes}`;
+  const path = `/api/acknowledgealarm.htm`;
 
   return this.api({
     path,
+    query: {id: objectId, ackmsg: message, duration: minutes},
     parse: (_, cb) => cb(null, {}),
   });
 };
@@ -468,27 +495,55 @@ function parseXML(str, cb) {
   }, cb);
 }
 
+// /**
+//  *
+//  * @param {PRTGFilter} filter
+//  * @returns {string}
+//  */
+// function parameterize(filter) {
+//   var params = [];
+//
+//   for (var f in filter) {
+//     if (filter.hasOwnProperty(f)) {
+//       if (_.isArray(filter[f])) {
+//         for (var i = 0; i < filter[f].length; i++) {
+//           params.push(f + '=' + filter[f][i]);
+//         }
+//       } else {
+//         params.push(f + '=' + filter[f]);
+//       }
+//     }
+//   }
+//
+//   return '&' + params.join('&');
+// }
+
 /**
- *
- * @param {PRTGFilter} filter
+ * Create a parameterized string for GET requests.
+ * Able to use contains, like, etc
+ * Example params object: { id: 1234, message: 'Test message ? and #' }
+ * Returns: ?id=1234&message=
+ * @private
+ * @param {object|string} params
  * @returns {string}
  */
-function parameterize(filter) {
-  var params = [];
+function parameterizeURL(params) {
+  if (typeof params === 'string') {
+    return params;
+  }
 
-  for (var f in filter) {
-    if (filter.hasOwnProperty(f)) {
-      if (_.isArray(filter[f])) {
-        for (var i = 0; i < filter[f].length; i++) {
-          params.push(f + '=' + filter[f][i]);
-        }
+  var result = [];
+  for (var param in params) {
+    if (params.hasOwnProperty(param)) {
+      if (_.isArray(params[param])) {
+        params[param].forEach(el => result.push(param + '=' + encodeURIComponent(el)));
       } else {
-        params.push(f + '=' + filter[f]);
+        result.push(param + '=' + encodeURIComponent(params[param]));
       }
     }
   }
 
-  return '&' + params.join('&');
+  return '?' + result.join('&');
 }
 
 module.exports = PRTG;
