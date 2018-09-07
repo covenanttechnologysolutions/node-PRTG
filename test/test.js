@@ -9,7 +9,7 @@ const should = require('should');
 const mocha = require('mocha');
 const {describe} = mocha;
 
-const URL = process.env.URL;
+const API_URL = process.env.API_URL;
 const USER = process.env.API_USER;
 const PASSHASH = process.env.PASSHASH;
 const DEVICE_ID = process.env.DEVICE_ID;
@@ -17,14 +17,11 @@ const SENSOR_ID = process.env.SENSOR_ID;
 const DEBUG = process.env.DEBUG;
 
 const prtg = new PRTG({
-  url: URL,
+  url: API_URL,
   username: USER,
   passhash: PASSHASH,
   debug: DEBUG,
 });
-
-// add delay between tests
-beforeEach((done) => setTimeout(() => done(), 1000));
 
 describe('PRTG', () => {
   describe('instance', () => {
