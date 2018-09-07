@@ -1,26 +1,29 @@
-# node-PRTG
+ [![npm version](https://img.shields.io/npm/v/node-prtg.svg)](https://www.npmjs.com/package/node-prtg) [![npm downloads](https://img.shields.io/npm/dt/node-prtg.svg)](https://www.npmjs.com/package/node-prtg) [![Build Status](https://travis-ci.org/covenanttechnologysolutions/node-PRTG.svg?branch=master)](https://travis-ci.org/covenanttechnologysolutions/node-PRTG) [![Coverage Status](https://coveralls.io/repos/github/covenanttechnologysolutions/node-PRTG/badge.svg?branch=master)](https://coveralls.io/github/covenanttechnologysolutions/node-PRTG?branch=master)
+
+# node-prtg
 A Node.js module for interacting with the PRTG API. 
 
 ## Requirements
 
 - PRTG 14.x+, earlier versions may work but have not been tested. 
-- Node.js v0.10+
+- Node.js v6+
 
 ## Usage
 
 ```javascript
 
-    var PRTG = require('node-prtg');
+    const PRTG = require('node-prtg');
     
-    var api = new PRTG({
+    const api = new PRTG({
             url: 'http://your.prtg.install.com',
             username: 'username',
             passhash: '123456789'
     });
     
-    api.getSensor(1234).then( /*do something with result*/ ).fail( /* handle errors */ );
-    
+    api.getSensor(1234)
+      .then(sensor => { /*do something with result*/ }).catch(error => { /* handle errors */ });
 ```
+
 ## Classes
 
 <dl>

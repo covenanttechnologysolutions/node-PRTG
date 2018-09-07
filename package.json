@@ -4,7 +4,8 @@
   "description": "A Node.js module for interacting with the PRTG API. ",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "nyc mocha",
+    "coveralls": "nyc report --reporter=text-lcov | coveralls",
     "jsdoc": "jsdoc src -r -c ./docs/jsdoc.json -d docs",
     "jsdocmd": "jsdoc2md src/**/*.js > doc.md"
   },
@@ -13,9 +14,7 @@
     "url": "https://github.com/covenanttechnologysolutions/node-PRTG.git"
   },
   "keywords": [
-    "PRTG",
-    "paessler",
-    "API"
+    "PRTG", "paessler", "API"
   ],
   "author": "kgrube <kgrube@covenant-tech.net>",
   "license": "MIT",
