@@ -11,7 +11,7 @@ const {describe} = mocha;
 
 const parsed = {
   URL: process.env.URL,
-  USER: process.env.USER,
+  USER: process.env.API_USER,
   PASSHASH: process.env.PASSHASH,
   DEVICE_ID: process.env.DEVICE_ID,
   SENSOR_ID: process.env.SENSOR_ID,
