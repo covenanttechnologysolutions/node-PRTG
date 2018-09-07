@@ -129,6 +129,12 @@ function PRTG(options) {
     throw 'options.url must be defined';
   }
 
+  if (!options.debug) {
+    this.debug = false;
+  } else {
+    this.debug = true;
+  }
+
   this.auth = {username: options.username, passhash: options.passhash};
   this.url = options.url;
 
@@ -219,6 +225,9 @@ PRTG.prototype.api = function ({path, query = {}, resultPath = null, parse = nul
       if (err) {
         return reject(err);
       } else if (res.statusCode !== 200) {
+        if (self.debug) {
+          console.log('Status code:' + res.statusCode, 'Result: ' + JSON.stringify(res));
+        }
         return reject('Error: ' + self.getDefaults().httpCodes[res.statusCode]);
       } else if (res.statusCode === 200) {
 

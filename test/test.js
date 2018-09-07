@@ -9,18 +9,18 @@ const should = require('should');
 const mocha = require('mocha');
 const {describe} = mocha;
 
-const parsed = {
-  URL: process.env.URL,
-  USER: process.env.API_USER,
-  PASSHASH: process.env.PASSHASH,
-  DEVICE_ID: process.env.DEVICE_ID,
-  SENSOR_ID: process.env.SENSOR_ID,
-};
+const URL = process.env.URL;
+const USER = process.env.API_USER;
+const PASSHASH = process.env.PASSHASH;
+const DEVICE_ID = process.env.DEVICE_ID;
+const SENSOR_ID = process.env.SENSOR_ID;
+const DEBUG = process.env.DEBUG;
 
 const prtg = new PRTG({
-  'url': parsed.URL,
-  'username': parsed.USER,
-  'passhash': parsed.PASSHASH,
+  url: URL,
+  username: USER,
+  passhash: PASSHASH,
+  debug: DEBUG,
 });
 
 describe('PRTG', () => {
@@ -113,7 +113,7 @@ describe('PRTG', () => {
 
   describe('#getSensor()', () => {
     it('should return a sensor object', done => {
-      prtg.getSensor(parsed.SENSOR_ID)
+      prtg.getSensor(SENSOR_ID)
         .then(sensor => {
           assertSensor(sensor);
           done();
@@ -127,7 +127,7 @@ describe('PRTG', () => {
   describe('#getDeviceSensors', () => {
     it('should return an array of sensors', done => {
       const columns = ['objid', 'probe', 'group', 'device', 'sensor', 'lastvalue', 'type', 'name', 'tags', 'active', 'status', 'grpdev', 'message'];
-      prtg.getDeviceSensors(parsed.DEVICE_ID, columns)
+      prtg.getDeviceSensors(DEVICE_ID, columns)
         .then(sensors => {
           assert(_.isArray(sensors));
           return sensors;
@@ -144,9 +144,9 @@ describe('PRTG', () => {
 
   describe('#getObjectProperty', () => {
     it('should return the same objid', done => {
-      prtg.getObjectProperty(parsed.SENSOR_ID, 'objid')
+      prtg.getObjectProperty(SENSOR_ID, 'objid')
         .then(property => {
-          assert(property === parsed.SENSOR_ID);
+          assert(property === SENSOR_ID);
           done();
         })
         .catch(err => done(new Error(err)));
@@ -155,7 +155,7 @@ describe('PRTG', () => {
 
   describe('#getSensorStatusId', () => {
     it('should return a valid status id', done => {
-      prtg.getSensorStatusId(parsed.SENSOR_ID)
+      prtg.getSensorStatusId(SENSOR_ID)
         .then(statusId => {
           assert(statusId > 0 && statusId <= 14);
           done();
@@ -166,7 +166,7 @@ describe('PRTG', () => {
 
   describe('#getDeviceStausId', () => {
     it('should return a valid status id', done => {
-      prtg.getDeviceStatusId(parsed.DEVICE_ID)
+      prtg.getDeviceStatusId(DEVICE_ID)
         .then(statusId => {
           assert(statusId > 0 && statusId <= 14);
           done();
@@ -195,7 +195,7 @@ describe('PRTG', () => {
       const columns = ['objid', 'probe', 'group', 'device', 'sensor', 'lastvalue', 'type', 'name', 'tags', 'active', 'status', 'grpdev', 'message'];
       const filter = {filter_status: [prtg.getDefaults().status['Down'], prtg.getDefaults().status['DownAcknowledged']]};
 
-      prtg.getSensors(columns, filter, parsed.DEVICE_ID)
+      prtg.getSensors(columns, filter, DEVICE_ID)
         .then(sensors => {
           assert(_.isArray(sensors));
           return sensors;
@@ -228,7 +228,7 @@ describe('PRTG', () => {
   });
 
   describe('#getSensorTree', () => {
-    it('should return ', done => {
+    it('should return a sensor tree', done => {
       prtg.getSensorTree()
         .then(sensorTree => {
           assertGroup(sensorTree);
@@ -240,7 +240,7 @@ describe('PRTG', () => {
 
   describe('#simulateSensorError', () => {
     it('should return an empty object', done => {
-      prtg.simulateSensorError(parsed.SENSOR_ID)
+      prtg.simulateSensorError(SENSOR_ID)
         .then(res => {
           assertEmpty(res);
           done();
@@ -251,7 +251,7 @@ describe('PRTG', () => {
 
   describe('#pauseSensor', () => {
     it('should return an empty object', done => {
-      prtg.pauseSensor(parsed.SENSOR_ID, 'Test Pause Sensor')
+      prtg.pauseSensor(SENSOR_ID, 'Test Pause Sensor')
         .then(res => {
           assertEmpty(res);
           done();
@@ -262,7 +262,7 @@ describe('PRTG', () => {
 
   describe('#pauseSensorDuration', () => {
     it('should return an empty object', done => {
-      prtg.pauseSensorDuration(parsed.SENSOR_ID, 'Test Pause Sensor', 5)
+      prtg.pauseSensorDuration(SENSOR_ID, 'Test Pause Sensor', 5)
         .then(res => {
           assertEmpty(res);
           done();
@@ -273,7 +273,7 @@ describe('PRTG', () => {
 
   describe('#acknowledgeSensor', () => {
     it('should return an empty object', done => {
-      prtg.acknowledgeSensor(parsed.SENSOR_ID, 'Test Acknowledge Sensor')
+      prtg.acknowledgeSensor(SENSOR_ID, 'Test Acknowledge Sensor')
         .then(res => {
           assertEmpty(res);
           done();
@@ -284,7 +284,7 @@ describe('PRTG', () => {
 
   describe('#acknowledgeSensorDuration', () => {
     it('should return an empty object', done => {
-      prtg.acknowledgeSensorDuration(parsed.SENSOR_ID, 'Test Acknowledge Sensor', 5)
+      prtg.acknowledgeSensorDuration(SENSOR_ID, 'Test Acknowledge Sensor', 5)
         .then(res => {
           assertEmpty(res);
           done();
@@ -295,7 +295,7 @@ describe('PRTG', () => {
 
   describe('#resumeSensor', () => {
     it('should return an empty object', done => {
-      prtg.resumeSensor(parsed.SENSOR_ID)
+      prtg.resumeSensor(SENSOR_ID)
         .then(res => {
           assertEmpty(res);
           done();
@@ -306,7 +306,7 @@ describe('PRTG', () => {
 });
 
 after(() => {
-  prtg.resumeSensor(parsed.SENSOR_ID);
+  prtg.resumeSensor(SENSOR_ID);
 });
 
 
