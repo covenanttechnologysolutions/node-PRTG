@@ -34,3 +34,5 @@ node_modules
 docs/*/
 docs/*.html
 scratch
+test/.env.test
+.nyc_output
