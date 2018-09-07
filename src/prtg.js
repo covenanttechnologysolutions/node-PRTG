@@ -184,6 +184,7 @@ function PRTG(options) {
   this.DEFAULTS.httpCodes[302] = 'Found';
   this.DEFAULTS.httpCodes[400] = 'Bad Request';
   this.DEFAULTS.httpCodes[401] = 'Unauthorized';
+  this.DEFAULTS.httpCodes[404] = 'Not Found';
 
 }
 

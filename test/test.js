@@ -23,6 +23,9 @@ const prtg = new PRTG({
   debug: DEBUG,
 });
 
+// add delay between tests
+beforeEach((done) => setTimeout(() => done(), 1000));
+
 describe('PRTG', () => {
   describe('instance', () => {
     it('should be an instance of PRTG', done => {
